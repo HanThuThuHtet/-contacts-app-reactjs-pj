@@ -57,7 +57,9 @@ const Contacts = () => {
                         {contact.phone}
                     </td>
                     <td className="px-6 py-4 flex">
+                       <Link to={`/edit/${contact.id}`}>
                         <AiFillEdit className='text-xl text-green-600 cursor-pointer mr-3' />
+                       </Link>
                         <AiFillDelete onClick={() => apiDeleteContact(contact.id)} className='text-xl text-red-600 cursor-pointer' />
                     </td>
                     </tr>
