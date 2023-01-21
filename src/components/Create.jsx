@@ -3,7 +3,7 @@ import React from 'react'
 import { useState } from 'react'
 import { AiFillPhone } from 'react-icons/ai'
 import { Link, useNavigate } from 'react-router-dom'
-
+import Swal from 'sweetalert2'
 
 const Create = () => {
 
@@ -12,6 +12,19 @@ const Create = () => {
   const [phone,setPhone] = useState('');
 
   const navigate = useNavigate();
+
+  //sweet alert
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
 
   const onSubmitHandler = e => {
     e.preventDefault(); //no refresh
@@ -23,6 +36,13 @@ const Create = () => {
   const apiCreateContact = async(contact) => {
     const {data} = await axios.post('http://localhost:3000/contacts',contact); //send data to server
     //console.log(data);
+
+    //sweet alert
+    Toast.fire({
+      icon: 'success',
+      title: 'Contact Created!'
+    })
+
     navigate("/");
   }
 

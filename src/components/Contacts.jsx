@@ -2,9 +2,20 @@ import React, { useEffect, useState } from 'react'
 import axios from "axios";
 import {AiFillDelete, AiFillEdit} from "react-icons/ai"
 import { Link } from "react-router-dom"
+import Swal from 'sweetalert2';
 
 const Contacts = () => {
     const [contacts,setContacts] = useState([]);
+
+    //sweet alert
+    const swalWithButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'bg-green-600 text-white px-5 py-1 rounded shadow',
+          cancelButton: 'bg-red-600 text-white px-5 py-1 rounded shadow mx-4'
+        },
+        buttonsStyling: false
+      })
+
     const getContacts = async() => {
         const {data} = await axios.get('http://localhost:3000/contacts');
         setContacts(data);
@@ -14,9 +25,38 @@ const Contacts = () => {
     },[]);
 
     const apiDeleteContact = async(id) => {
-        const {data} = await axios.delete(`http://localhost:3000/contacts/${id}`);
-        //console.log(data);
-        getContacts();
+       
+
+        //sweet alert
+        swalWithButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+          }).then(async(result) => {
+            if (result.isConfirmed) {
+              swalWithButtons.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+              );
+              const {data} = await axios.delete(`http://localhost:3000/contacts/${id}`);
+              //console.log(data);
+              getContacts();
+            } else if (
+              /* Read more about handling dismissals below */
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
+              swalWithButtons.fire(
+                'Cancelled',
+                'Your imaginary file is safe :)',
+                'error'
+              )
+            }
+          })
       }
     
 
@@ -46,7 +86,7 @@ const Contacts = () => {
             </thead>
             <tbody>
                 {contacts?.map((contact) => (
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={contact.id} className="border-b border-gray-200 dark:border-gray-700">
                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
                         {contact.name}
                     </th>
@@ -56,11 +96,11 @@ const Contacts = () => {
                     <td className="px-6 py-4 bg-gray-50 dark:bg-gray-800">
                         {contact.phone}
                     </td>
-                    <td className="px-6 py-4 flex">
+                    <td className="px-6 py-4 flex justify-evenly">
                        <Link to={`/edit/${contact.id}`}>
-                        <AiFillEdit className='text-xl text-green-600 cursor-pointer mr-3' />
+                        <AiFillEdit className='text-2xl text-green-600 cursor-pointer mr-3' />
                        </Link>
-                        <AiFillDelete onClick={() => apiDeleteContact(contact.id)} className='text-xl text-red-600 cursor-pointer' />
+                        <AiFillDelete onClick={() => apiDeleteContact(contact.id)} className='text-2xl text-red-600 cursor-pointer' />
                     </td>
                     </tr>
                 ))}
